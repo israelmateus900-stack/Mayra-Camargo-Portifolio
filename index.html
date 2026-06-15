@@ -1,0 +1,1419 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mayra Camargo Beauty</title>
+
+  <!-- Google Fonts: Cormorant Garamond (display) + Inter (body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ============================================================
+       RESET & CSS VARIABLES
+    ============================================================ */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg:        #080808;
+      --bg-2:      #101010;
+      --bg-3:      #161616;
+      --line:      rgba(255,255,255,0.08);
+      --white:     #F5F5F5;
+      --mid:       #888888;
+      --dim:       #444444;
+      --accent:    #D4D4D4;
+
+      --font-display: 'Cormorant Garamond', serif;
+      --font-body:    'Inter', sans-serif;
+
+      --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+      --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-size: 16px;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--white);
+      font-family: var(--font-body);
+      font-weight: 300;
+      line-height: 1.6;
+      overflow-x: hidden;
+      /* Fundo limpo — grain elegante aplicado via canvas JS overlay */
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--dim); border-radius: 2px; }
+
+    /* ============================================================
+       SELECTION
+    ============================================================ */
+    ::selection {
+      background: var(--white);
+      color: var(--bg);
+    }
+
+    /* ============================================================
+       GRAIN OVERLAY — canvas gerado em JS, fino e elegante
+    ============================================================ */
+    #grain-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 9990;        /* acima de tudo mas abaixo do cursor */
+      opacity: 0.032;       /* sutilíssimo: textura presente sem peso visual */
+      mix-blend-mode: screen;
+    }
+    .cursor {
+      position: fixed;
+      width: 8px;
+      height: 8px;
+      background: var(--white);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.1s, width 0.3s var(--ease-out), height 0.3s var(--ease-out), opacity 0.3s;
+      mix-blend-mode: difference;
+    }
+    .cursor-ring {
+      position: fixed;
+      width: 36px;
+      height: 36px;
+      border: 1px solid rgba(255,255,255,0.4);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: transform 0.15s var(--ease-out), width 0.4s var(--ease-out), height 0.4s var(--ease-out), opacity 0.3s;
+      mix-blend-mode: difference;
+    }
+    body.cursor-hover .cursor { width: 12px; height: 12px; }
+    body.cursor-hover .cursor-ring { width: 60px; height: 60px; opacity: 0.6; }
+
+    /* ============================================================
+       PROGRESS BAR (scroll)
+    ============================================================ */
+    #scroll-progress {
+      position: fixed;
+      top: 0; left: 0;
+      height: 2px;
+      width: 0%;
+      background: var(--white);
+      z-index: 1000;
+      transition: width 0.1s linear;
+    }
+
+    /* ============================================================
+       NAVBAR
+    ============================================================ */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 900;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.5rem 5vw;
+      background: transparent;
+      transition: background 0.5s, backdrop-filter 0.5s, padding 0.4s;
+    }
+    nav.scrolled {
+      background: rgba(8,8,8,0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      padding: 1rem 5vw;
+      border-bottom: 1px solid var(--line);
+    }
+
+    /* Logo */
+    .nav-logo {
+      font-family: var(--font-display);
+      font-size: clamp(1rem, 2vw, 1.3rem);
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--white);
+      text-decoration: none;
+    }
+
+    /* Nav links (desktop) */
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+    .nav-links a {
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--mid);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .nav-links a:hover { color: var(--white); }
+
+    /* WhatsApp nav CTA */
+    .nav-cta {
+      font-size: 0.72rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--bg);
+      background: var(--white);
+      padding: 0.55rem 1.4rem;
+      border-radius: 0;
+      text-decoration: none;
+      transition: background 0.3s, color 0.3s, letter-spacing 0.3s;
+      white-space: nowrap;
+    }
+    .nav-cta:hover {
+      background: var(--accent);
+      letter-spacing: 0.2em;
+    }
+
+    /* Hamburger */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 4px;
+      background: none;
+      border: none;
+    }
+    .hamburger span {
+      display: block;
+      width: 24px;
+      height: 1px;
+      background: var(--white);
+      transition: transform 0.4s var(--ease-out), opacity 0.4s;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+    /* Mobile menu */
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      z-index: 800;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2.5rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s var(--ease-out);
+    }
+    .mobile-menu.open {
+      display: flex;
+      opacity: 1;
+      pointer-events: all;
+    }
+    .mobile-menu a {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 6vw, 3rem);
+      color: var(--white);
+      text-decoration: none;
+      letter-spacing: 0.1em;
+      transition: color 0.3s;
+    }
+    .mobile-menu a:hover { color: var(--mid); }
+
+    /* ============================================================
+       LAUNCH BANNER — topo chamativo para curso em lançamento
+    ============================================================ */
+    #launch-banner {
+      position: relative;
+      top: 0;
+      width: 100%;
+      background: var(--white);
+      color: var(--bg);
+      padding: 0.85rem 5vw;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
+      z-index: 800;
+      flex-wrap: wrap;
+      text-align: center;
+      /* banner aparece abaixo da nav quando não scrollou */
+      margin-top: 70px;
+      border-bottom: 1px solid var(--line);
+    }
+    /* Rótulo pulsante */
+    .banner-tag {
+      font-size: 0.65rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      font-weight: 600;
+      background: var(--bg);
+      color: var(--white);
+      padding: 0.3rem 0.8rem;
+      animation: pulse-tag 2s ease-in-out infinite;
+    }
+    @keyframes pulse-tag {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.6; }
+    }
+    .banner-text {
+      font-family: var(--font-display);
+      font-size: clamp(0.95rem, 2.2vw, 1.15rem);
+      font-weight: 400;
+      color: var(--bg);
+      letter-spacing: 0.04em;
+    }
+    .banner-btn {
+      font-size: 0.68rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 600;
+      color: var(--white);
+      background: var(--bg);
+      padding: 0.5rem 1.3rem;
+      text-decoration: none;
+      border: 1px solid var(--bg);
+      transition: background 0.3s, color 0.3s;
+      white-space: nowrap;
+    }
+    .banner-btn:hover {
+      background: #222;
+      color: var(--white);
+    }
+    /* Botão fechar banner */
+    .banner-close {
+      position: absolute;
+      right: 1.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--bg);
+      font-size: 1.2rem;
+      line-height: 1;
+      opacity: 0.5;
+      transition: opacity 0.2s;
+    }
+    .banner-close:hover { opacity: 1; }
+
+    /* ============================================================
+       HERO SECTION
+    ============================================================ */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      padding: 8rem 5vw 5rem;
+      overflow: hidden;
+      text-align: center;
+    }
+
+    /* Linhas decorativas de fundo */
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--line) 1px, transparent 1px);
+      background-size: 80px 80px;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, #000 40%, transparent 100%);
+    }
+
+    /* Linha de luz vertical */
+    .hero-light-line {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 1px;
+      height: 0;
+      background: linear-gradient(to bottom, transparent, var(--white) 50%, transparent);
+      animation: light-line 2s 0.5s var(--ease-out) forwards;
+    }
+    @keyframes light-line {
+      to { height: 60%; top: 20%; }
+    }
+
+    /* Texto de eyebrow */
+    .hero-eyebrow {
+      font-size: 0.68rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--mid);
+      margin-bottom: 1.8rem;
+      opacity: 0;
+      animation: fade-up 0.8s 0.6s var(--ease-out) forwards;
+    }
+
+    /* Título principal com stagger */
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(3.2rem, 10vw, 9rem);
+      font-weight: 300;
+      line-height: 0.95;
+      letter-spacing: -0.01em;
+      color: var(--white);
+      overflow: hidden;
+    }
+    /* Cada linha do título anima separado */
+    .hero-title .line {
+      display: block;
+      overflow: hidden;
+    }
+    .hero-title .line span {
+      display: block;
+      transform: translateY(110%);
+      animation: slide-up 1s var(--ease-out) forwards;
+    }
+    .hero-title .line:nth-child(1) span { animation-delay: 0.7s; }
+    .hero-title .line:nth-child(2) span { animation-delay: 0.85s; font-style: italic; color: var(--accent); }
+    .hero-title .line:nth-child(3) span { animation-delay: 1.0s; }
+
+    @keyframes slide-up {
+      to { transform: translateY(0); }
+    }
+
+    /* Tagline */
+    .hero-tagline {
+      font-family: var(--font-display);
+      font-size: clamp(1.1rem, 2.5vw, 1.6rem);
+      font-weight: 300;
+      font-style: italic;
+      color: var(--mid);
+      margin-top: 2rem;
+      letter-spacing: 0.08em;
+      opacity: 0;
+      animation: fade-up 0.8s 1.3s var(--ease-out) forwards;
+    }
+
+    /* Botões hero */
+    .hero-actions {
+      margin-top: 3.5rem;
+      display: flex;
+      gap: 1.2rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      opacity: 0;
+      animation: fade-up 0.8s 1.5s var(--ease-out) forwards;
+    }
+
+    /* Indicador de scroll */
+    .scroll-hint {
+      position: absolute;
+      bottom: 2.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      opacity: 0;
+      animation: fade-in 1s 2s var(--ease-out) forwards;
+    }
+    .scroll-hint span {
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--dim);
+    }
+    .scroll-hint .line-scroll {
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(to bottom, var(--dim), transparent);
+      animation: scroll-line 1.8s ease-in-out infinite;
+    }
+    @keyframes scroll-line {
+      0%   { transform: scaleY(0); transform-origin: top; opacity: 1; }
+      50%  { transform: scaleY(1); transform-origin: top; opacity: 1; }
+      100% { transform: scaleY(1); transform-origin: bottom; opacity: 0; }
+    }
+
+    /* ============================================================
+       UTILITY — Animações de entrada (Intersection Observer)
+    ============================================================ */
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fade-in {
+      to { opacity: 1; }
+    }
+
+    /* Classe base para reveal on scroll */
+    .reveal {
+      opacity: 0;
+      transform: translateY(36px);
+      transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out);
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal-delay-1 { transition-delay: 0.15s; }
+    .reveal-delay-2 { transition-delay: 0.3s; }
+    .reveal-delay-3 { transition-delay: 0.45s; }
+    .reveal-delay-4 { transition-delay: 0.6s; }
+
+    /* ============================================================
+       SEÇÃO GENÉRICA
+    ============================================================ */
+    section {
+      padding: 8rem 5vw;
+      position: relative;
+    }
+    section:nth-child(even) { background: var(--bg-2); }
+
+    /* Divisor de seção */
+    .section-divider {
+      width: 40px;
+      height: 1px;
+      background: var(--dim);
+      margin: 0 auto 1.5rem;
+    }
+
+    /* Eyebrow das seções */
+    .section-eyebrow {
+      font-size: 0.65rem;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--mid);
+      text-align: center;
+      margin-bottom: 0.8rem;
+    }
+
+    /* Título das seções */
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.2rem, 5vw, 4rem);
+      font-weight: 300;
+      line-height: 1.05;
+      text-align: center;
+      color: var(--white);
+      margin-bottom: 1rem;
+    }
+
+    /* Subtítulo das seções */
+    .section-subtitle {
+      font-size: 0.9rem;
+      color: var(--mid);
+      text-align: center;
+      max-width: 460px;
+      margin: 0 auto 4rem;
+      line-height: 1.8;
+    }
+
+    /* ============================================================
+       BOTÕES
+    ============================================================ */
+
+    /* Botão primário: fundo branco, texto preto */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-family: var(--font-body);
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--bg);
+      background: var(--white);
+      padding: 1rem 2.2rem;
+      text-decoration: none;
+      border: 1px solid var(--white);
+      position: relative;
+      overflow: hidden;
+      transition: color 0.4s, letter-spacing 0.4s;
+      cursor: pointer;
+    }
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--bg);
+      transform: translateX(-101%);
+      transition: transform 0.5s var(--ease-out);
+    }
+    .btn-primary:hover::before { transform: translateX(0); }
+    .btn-primary:hover { color: var(--white); letter-spacing: 0.24em; }
+    .btn-primary span { position: relative; z-index: 1; }
+
+    /* Botão secundário: outline */
+    .btn-outline {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-family: var(--font-body);
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--white);
+      background: transparent;
+      padding: 1rem 2.2rem;
+      text-decoration: none;
+      border: 1px solid var(--dim);
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.4s, letter-spacing 0.4s;
+      cursor: pointer;
+    }
+    .btn-outline::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--white);
+      transform: translateX(-101%);
+      transition: transform 0.5s var(--ease-out);
+    }
+    .btn-outline:hover::before { transform: translateX(0); }
+    .btn-outline:hover { color: var(--bg); border-color: var(--white); letter-spacing: 0.24em; }
+    .btn-outline span { position: relative; z-index: 1; }
+
+    /* Botão WhatsApp (grande, verde-fantasma / no caso usamos branco com ícone) */
+    .btn-whatsapp {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.8rem;
+      font-family: var(--font-body);
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--bg);
+      background: var(--white);
+      padding: 1.2rem 2.8rem;
+      text-decoration: none;
+      border: 1px solid var(--white);
+      position: relative;
+      overflow: hidden;
+      transition: letter-spacing 0.4s, color 0.4s;
+    }
+    .btn-whatsapp::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: #25D366;
+      transform: translateX(-101%);
+      transition: transform 0.5s var(--ease-out);
+    }
+    .btn-whatsapp:hover::before { transform: translateX(0); }
+    .btn-whatsapp:hover { color: var(--white); letter-spacing: 0.22em; }
+    .btn-whatsapp span { position: relative; z-index: 1; }
+
+    /* ============================================================
+       CARDS DE PRODUTO / SERVIÇO
+    ============================================================ */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1px;
+      margin-top: 1rem;
+    }
+
+    .card {
+      background: var(--bg-3);
+      padding: 3rem 2.5rem;
+      border: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.4s, background 0.4s;
+    }
+    .card::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 100%;
+      height: 2px;
+      background: var(--white);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.5s var(--ease-out);
+    }
+    .card:hover { border-color: rgba(255,255,255,0.18); background: #1a1a1a; }
+    .card:hover::after { transform: scaleX(1); }
+
+    .card-num {
+      font-family: var(--font-display);
+      font-size: 3.5rem;
+      font-weight: 300;
+      color: var(--line);
+      line-height: 1;
+      transition: color 0.4s;
+    }
+    .card:hover .card-num { color: rgba(255,255,255,0.12); }
+
+    .card-title {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      font-weight: 400;
+      color: var(--white);
+      line-height: 1.2;
+    }
+
+    .card-desc {
+      font-size: 0.82rem;
+      color: var(--mid);
+      line-height: 1.7;
+      flex: 1;
+    }
+
+    /* ============================================================
+       SEÇÃO IMPACTO — Globo 3D Canvas
+    ============================================================ */
+    #impact {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    /* Canvas do globo — tamanho responsivo definido via JS */
+    #globe-canvas {
+      display: block;
+      margin: 0 auto 3rem;
+      width: min(340px, 80vw);
+      height: min(340px, 80vw);
+    }
+
+    /* Número de impacto */
+    .impact-number {
+      font-family: var(--font-display);
+      font-size: clamp(4rem, 12vw, 8rem);
+      font-weight: 300;
+      line-height: 0.9;
+      color: var(--white);
+      letter-spacing: -0.02em;
+    }
+    .impact-number .plus {
+      font-style: italic;
+      color: var(--mid);
+      font-size: 0.6em;
+    }
+
+    .impact-label {
+      font-size: 0.8rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--mid);
+      margin-top: 0.8rem;
+    }
+
+    /* ============================================================
+       SEÇÃO FRASE IMPACTANTE
+    ============================================================ */
+    #motto {
+      padding: 10rem 5vw;
+      background: var(--white);
+      overflow: hidden;
+    }
+
+    .motto-text {
+      font-family: var(--font-display);
+      font-size: clamp(4rem, 14vw, 11rem);
+      font-weight: 300;
+      color: var(--bg);
+      line-height: 0.9;
+      text-align: center;
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
+    }
+    .motto-text em {
+      display: block;
+      font-style: italic;
+      color: var(--dim);
+    }
+
+    /* ============================================================
+       SEÇÃO CONTATO / REDES
+    ============================================================ */
+    #contact {
+      padding: 8rem 5vw;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    /* Links de redes sociais */
+    .social-links {
+      display: flex;
+      gap: 1.5rem;
+      margin-top: 3rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .social-link {
+      font-size: 0.68rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--mid);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding-bottom: 2px;
+      border-bottom: 1px solid transparent;
+      transition: color 0.3s, border-color 0.3s;
+    }
+    .social-link:hover {
+      color: var(--white);
+      border-color: var(--white);
+    }
+
+    /* ============================================================
+       FOOTER
+    ============================================================ */
+    footer {
+      padding: 2.5rem 5vw;
+      border-top: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .footer-brand {
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--white);
+    }
+    .footer-copy {
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      color: var(--dim);
+    }
+
+    /* Marquee removido conforme solicitado */
+
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
+    @media (max-width: 768px) {
+      .nav-links, .nav-cta { display: none; }
+      .hamburger { display: flex; }
+
+      #launch-banner { margin-top: 60px; padding: 1rem 4vw 1rem 4vw; }
+      .banner-close { display: none; }
+
+      .cards-grid { grid-template-columns: 1fr; gap: 1px; }
+
+      footer { flex-direction: column; text-align: center; }
+    }
+
+    @media (max-width: 480px) {
+      .hero-actions { flex-direction: column; align-items: center; }
+      .btn-primary, .btn-outline, .btn-whatsapp { width: 100%; justify-content: center; }
+    }
+
+    /* ============================================================
+       REDUCED MOTION
+    ============================================================ */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Canvas de grain elegante (gerado em JS, animado frame a frame) -->
+  <canvas id="grain-canvas"></canvas>
+
+  <!-- ============================================================
+       CURSOR CUSTOMIZADO
+  ============================================================ -->
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursor-ring"></div>
+
+  <!-- ============================================================
+       BARRA DE PROGRESSO DO SCROLL
+  ============================================================ -->
+  <div id="scroll-progress"></div>
+
+  <!-- ============================================================
+       NAVBAR
+  ============================================================ -->
+  <nav id="navbar">
+    <a class="nav-logo" href="#hero">Mayra Camargo</a>
+
+    <ul class="nav-links">
+      <li><a href="#services">Serviços</a></li>
+      <li><a href="#cursos">Cursos</a></li>
+      <li><a href="#impact">Impacto</a></li>
+      <li><a href="#contact">Contato</a></li>
+    </ul>
+
+    <a href="https://wa.me/554796423315" target="_blank" rel="noopener" class="nav-cta">
+      <span>Falar no WhatsApp</span>
+    </a>
+
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- ============================================================
+       MENU MOBILE
+  ============================================================ -->
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="#services"  onclick="closeMobileMenu()">Serviços</a>
+    <a href="#cursos"    onclick="closeMobileMenu()">Cursos</a>
+    <a href="#impact"    onclick="closeMobileMenu()">Impacto</a>
+    <a href="#contact"   onclick="closeMobileMenu()">Contato</a>
+    <a href="https://wa.me/554796423315" target="_blank" rel="noopener" onclick="closeMobileMenu()">WhatsApp</a>
+  </div>
+
+  <!-- ============================================================
+       BANNER DE LANÇAMENTO
+       ➜ Edite aqui o nome do curso em lançamento, descrição e link
+  ============================================================ -->
+  <div id="launch-banner">
+    <span class="banner-tag">🔥 Novidade</span>
+    <p class="banner-text">
+      <strong>Novo curso em lançamento!</strong> — 4 Pilares da Retenção: eleve seus resultados agora.
+    </p>
+    <a href="https://pay.kiwify.com.br/7KXZ1dG" target="_blank" rel="noopener" class="banner-btn">
+      <span>Quero agora</span>
+    </a>
+    <button class="banner-close" onclick="document.getElementById('launch-banner').remove()" aria-label="Fechar">×</button>
+  </div>
+
+  <!-- ============================================================
+       HERO
+  ============================================================ -->
+  <section id="hero">
+    <div class="hero-grid"></div>
+    <div class="hero-light-line"></div>
+
+    <p class="hero-eyebrow">Transformação · Beleza · Confiança</p>
+
+    <h1 class="hero-title">
+      <span class="line"><span>Mayra</span></span>
+      <span class="line"><span>Camargo</span></span>
+      <span class="line"><span>Beauty</span></span>
+    </h1>
+
+    <p class="hero-tagline">Especialista em lashes & capacitação profissional</p>
+
+    <div class="hero-actions">
+      <a href="https://gestorlash.com.br/agendar/MAYRA194" target="_blank" rel="noopener" class="btn-primary">
+        <span>Agendar agora</span>
+      </a>
+      <a href="https://wa.me/554796423315" target="_blank" rel="noopener" class="btn-outline">
+        <span>Falar comigo</span>
+      </a>
+    </div>
+
+    <div class="scroll-hint">
+      <div class="line-scroll"></div>
+      <span>Scroll</span>
+    </div>
+  </section>
+
+
+
+  <!-- ============================================================
+       SERVIÇOS — Agendamento
+  ============================================================ -->
+  <section id="services">
+    <div class="section-divider"></div>
+    <p class="section-eyebrow reveal">O que ofereço</p>
+    <h2 class="section-title reveal reveal-delay-1">Agendamento<br><em style="font-style:italic; color:var(--mid);">de procedimentos</em></h2>
+    <p class="section-subtitle reveal reveal-delay-2">
+      Reserve seu horário com exclusividade. Resultados que transformam sua autoestima.
+    </p>
+
+    <div style="display:flex; justify-content:center;" class="reveal reveal-delay-3">
+      <a href="https://gestorlash.com.br/agendar/MAYRA194" target="_blank" rel="noopener" class="btn-primary" style="font-size:0.85rem; padding:1.3rem 3.5rem;">
+        <span>Agendar meu horário →</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       CURSOS & PRODUTOS
+  ============================================================ -->
+  <section id="cursos">
+    <div class="section-divider"></div>
+    <p class="section-eyebrow reveal">Capacitação profissional</p>
+    <h2 class="section-title reveal reveal-delay-1">Cursos &amp;<br><em style="font-style:italic; color:var(--mid);">Produtos Digitais</em></h2>
+    <p class="section-subtitle reveal reveal-delay-2">
+      Materiais desenvolvidos para impulsionar sua carreira no universo da beleza.
+    </p>
+
+    <div class="cards-grid">
+
+      <!-- Card 1: Cursos e Mentorias (WhatsApp) -->
+      <article class="card reveal">
+        <span class="card-num">01</span>
+        <h3 class="card-title">Cursos &amp; Mentorias</h3>
+        <p class="card-desc">Aprenda com quem já transformou centenas de carreiras. Mentoria personalizada para sua evolução profissional.</p>
+        <a href="https://wa.me/554796423315" target="_blank" rel="noopener" class="btn-outline" style="align-self:flex-start; font-size:0.66rem;">
+          <span>Saber mais →</span>
+        </a>
+      </article>
+
+      <!-- Card 2: Apostila | Contrato | Prova Editável -->
+      <article class="card reveal reveal-delay-1">
+        <span class="card-num">02</span>
+        <h3 class="card-title">Apostila · Contrato<br>Prova Editável</h3>
+        <p class="card-desc">Material completo e profissional para você organizar e elevar o padrão do seu negócio na estética.</p>
+        <a href="https://pay.kiwify.com.br/6LbZ7G" target="_blank" rel="noopener" class="btn-outline" style="align-self:flex-start; font-size:0.66rem;">
+          <span>Adquirir →</span>
+        </a>
+      </article>
+
+      <!-- Card 3: Pack com Artes Editáveis -->
+      <article class="card reveal reveal-delay-2">
+        <span class="card-num">03</span>
+        <h3 class="card-title">Pack com Artes<br>Editáveis</h3>
+        <p class="card-desc">Artes prontas e editáveis para você usar nas suas redes sociais e encantar seus clientes desde o primeiro olhar.</p>
+        <a href="https://pay.kiwify.com.br/DmU44XM" target="_blank" rel="noopener" class="btn-outline" style="align-self:flex-start; font-size:0.66rem;">
+          <span>Adquirir →</span>
+        </a>
+      </article>
+
+      <!-- Card 4: 4 Pilares da Retenção -->
+      <article class="card reveal reveal-delay-3">
+        <span class="card-num">04</span>
+        <h3 class="card-title">4 Pilares da<br>Retenção</h3>
+        <p class="card-desc">Metodologia exclusiva para fidelizar clientes, aumentar seu faturamento e criar uma cartela sólida e lucrativa.</p>
+        <a href="https://pay.kiwify.com.br/7KXZ1dG" target="_blank" rel="noopener" class="btn-outline" style="align-self:flex-start; font-size:0.66rem;">
+          <span>Adquirir →</span>
+        </a>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ============================================================
+       FRASE IMPACTANTE
+  ============================================================ -->
+  <section id="motto" style="padding:0;">
+    <div class="motto-text reveal">
+      Seja<br>
+      <em>Imparável</em>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       IMPACTO — Globo Animado
+  ============================================================ -->
+  <section id="impact">
+    <div class="section-divider"></div>
+    <p class="section-eyebrow reveal">Alcance</p>
+    <h2 class="section-title reveal reveal-delay-1">Impacto real<br><em style="font-style:italic; color:var(--mid);">que transforma vidas</em></h2>
+
+    <!-- GLOBO 3D REAL — renderizado em Canvas com projeção esférica -->
+    <canvas id="globe-canvas"></canvas>
+
+    <!-- Número de impacto com contador animado -->
+    <div class="impact-number reveal reveal-delay-3">
+      <span class="plus">+</span><span id="counter">0</span>
+    </div>
+    <p class="impact-label reveal reveal-delay-4">Mulheres impactadas</p>
+  </section>
+
+  <!-- ============================================================
+       CONTATO & REDES SOCIAIS
+  ============================================================ -->
+  <section id="contact">
+    <div class="section-divider"></div>
+    <p class="section-eyebrow reveal">Vamos conversar</p>
+    <h2 class="section-title reveal reveal-delay-1">Pronta para<br><em style="font-style:italic; color:var(--mid);">dar o próximo passo?</em></h2>
+    <p class="section-subtitle reveal reveal-delay-2">
+      Fale diretamente comigo. Juntas vamos transformar a sua carreira e autoestima.
+    </p>
+
+    <div class="reveal reveal-delay-3">
+      <a href="https://wa.me/554796423315" target="_blank" rel="noopener" class="btn-whatsapp">
+        <!-- Ícone WhatsApp inline SVG -->
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="position:relative;z-index:1;flex-shrink:0">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+        </svg>
+        <span>me chama!</span>
+      </a>
+    </div>
+
+    <!-- Redes sociais -->
+    <div class="social-links reveal reveal-delay-4">
+      <a href="https://www.instagram.com/mayracamargobeauty_?igsh=eWpvNTNhcHhqbHl5" target="_blank" rel="noopener" class="social-link">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+          <circle cx="12" cy="12" r="4"/>
+          <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+        </svg>
+        Instagram
+      </a>
+      <a href="https://wa.me/554796423315" target="_blank" rel="noopener" class="social-link">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+        </svg>
+        WhatsApp
+      </a>
+      <a href="https://gestorlash.com.br/agendar/MAYRA194" target="_blank" rel="noopener" class="social-link">
+        📅 Agendar
+      </a>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       FOOTER
+  ============================================================ -->
+  <footer>
+    <span class="footer-brand">Mayra Camargo Beauty</span>
+    <span class="footer-copy">© 2026 — Todos os direitos reservados - Mayra Camargo Beauty</span>
+  </footer>
+
+  <!-- ============================================================
+       JAVASCRIPT
+  ============================================================ -->
+  <script>
+    /* ── GRAIN CANVAS — textura de película analógica elegante ── */
+    (function () {
+      const canvas  = document.getElementById('grain-canvas');
+      const ctx     = canvas.getContext('2d');
+      let   frame   = 0;
+
+      function resize() {
+        canvas.width  = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      window.addEventListener('resize', resize);
+      resize();
+
+      function drawGrain() {
+        const w = canvas.width, h = canvas.height;
+        // Cria ImageData para manipulação pixel a pixel
+        const imageData = ctx.createImageData(w, h);
+        const data      = imageData.data;
+        // Seed muda a cada frame para que o grain "respire" como película analógica
+        const seed = Math.random() * 0xFFFFFF | 0;
+
+        for (let i = 0; i < data.length; i += 4) {
+          // PRNG rápido baseado no índice + seed
+          let v = ((i ^ seed) * 0x9E3779B9) >>> 0;
+          v     = ((v >> 16) ^ v) >>> 0;
+          v     = (v * 0x45D9F3B) >>> 0;
+          v     = ((v >> 16) ^ v) & 0xFF;
+          // Apenas canal de luminância (R=G=B) para grão monocromático refinado
+          data[i]     = v;
+          data[i + 1] = v;
+          data[i + 2] = v;
+          data[i + 3] = 255; // alpha total — opacidade controlada pelo CSS
+        }
+        ctx.putImageData(imageData, 0, 0);
+        // Roda a ~15fps para um motion mais orgânico (não a 60fps nervoso)
+        frame++;
+        setTimeout(() => requestAnimationFrame(drawGrain), 66);
+      }
+      drawGrain();
+    })();
+
+    /* ── GLOBO 3D — projeção esférica real em Canvas ─────────── */
+    (function () {
+      const canvas = document.getElementById('globe-canvas');
+      const ctx    = canvas.getContext('2d');
+
+      // Tamanho físico em DPR (retina-ready)
+      const DPR  = Math.min(window.devicePixelRatio || 1, 2);
+      const SIZE = Math.min(340, window.innerWidth * 0.80);
+      canvas.width  = SIZE * DPR;
+      canvas.height = SIZE * DPR;
+      canvas.style.width  = SIZE + 'px';
+      canvas.style.height = SIZE + 'px';
+      ctx.scale(DPR, DPR);
+
+      const cx = SIZE / 2;     // centro X
+      const cy = SIZE / 2;     // centro Y
+      const R  = SIZE / 2 - 4; // raio
+
+      // Rotação acumulada em radianos
+      let angle = 0;
+
+      // Linhas de latitude: ângulos em graus
+      const latitudes  = [-70, -50, -30, -10, 10, 30, 50, 70];
+      // Linhas de longitude: ângulos em graus
+      const longitudes = [0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 220, 240, 260, 280, 300, 320, 340];
+
+      // Pontos de destaque fixos no globo (lon, lat em radianos)
+      const dots = [
+        { lon:  0.40, lat:  0.20 },
+        { lon: -0.60, lat: -0.45 },
+        { lon:  1.20, lat:  0.55 },
+        { lon: -1.00, lat:  0.10 },
+        { lon:  0.80, lat: -0.30 },
+        { lon:  2.00, lat:  0.40 },
+      ];
+
+      /**
+       * Converte coordenadas esféricas (lon, lat) para (x, y) na tela.
+       * A rotação horizontal é aplicada somando `angle` ao lon.
+       * Retorna também `visible`: se o ponto está na face frontal do globo.
+       */
+      function project(lon, lat, rotY) {
+        const lam = lon + rotY;          // longitude com rotação
+        const phi = lat;                  // latitude
+        // Coordenadas 3D na esfera unitária
+        const x3 = Math.cos(phi) * Math.sin(lam);
+        const y3 = Math.sin(phi);
+        const z3 = Math.cos(phi) * Math.cos(lam);
+        return {
+          x:       cx + R * x3,
+          y:       cy - R * y3,
+          visible: z3 > 0,              // z > 0 = face frontal
+          depth:   z3,                  // profundidade (0=borda, 1=centro)
+        };
+      }
+
+      /**
+       * Desenha uma linha de latitude em lat_deg graus.
+       * Amostra N pontos ao longo da longitude para formar a curva projetada.
+       */
+      function drawLatitude(latDeg, rotY) {
+        const lat = latDeg * Math.PI / 180;
+        const N   = 180;
+        ctx.beginPath();
+        let started = false;
+        for (let i = 0; i <= N; i++) {
+          const lon = (i / N) * Math.PI * 2 - Math.PI;
+          const p   = project(lon, lat, rotY);
+          // Interrompe o traço ao cruzar o lado oculto para evitar linhas falsas
+          if (p.visible) {
+            if (!started) { ctx.moveTo(p.x, p.y); started = true; }
+            else            ctx.lineTo(p.x, p.y);
+          } else {
+            started = false;
+          }
+        }
+        ctx.stroke();
+      }
+
+      /**
+       * Desenha uma linha de longitude em lon_deg graus.
+       */
+      function drawLongitude(lonDeg, rotY) {
+        const lon = lonDeg * Math.PI / 180;
+        const N   = 180;
+        ctx.beginPath();
+        let started = false;
+        for (let i = 0; i <= N; i++) {
+          const lat = (i / N) * Math.PI - Math.PI / 2;
+          const p   = project(lon, lat, rotY);
+          if (p.visible) {
+            if (!started) { ctx.moveTo(p.x, p.y); started = true; }
+            else            ctx.lineTo(p.x, p.y);
+          } else {
+            started = false;
+          }
+        }
+        ctx.stroke();
+      }
+
+      function render() {
+        ctx.clearRect(0, 0, SIZE, SIZE);
+
+        /* — Borda exterior do globo — */
+        ctx.beginPath();
+        ctx.arc(cx, cy, R, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(255,255,255,0.14)';
+        ctx.lineWidth   = 0.8;
+        ctx.stroke();
+
+        /* — Brilho atmosférico (gradiente radial) — */
+        const glow = ctx.createRadialGradient(cx - R * 0.3, cy - R * 0.3, R * 0.1, cx, cy, R);
+        glow.addColorStop(0,   'rgba(255,255,255,0.06)');
+        glow.addColorStop(0.6, 'rgba(255,255,255,0.02)');
+        glow.addColorStop(1,   'rgba(0,0,0,0)');
+        ctx.beginPath();
+        ctx.arc(cx, cy, R, 0, Math.PI * 2);
+        ctx.fillStyle = glow;
+        ctx.fill();
+
+        /* — Clipping: tudo desenhado fica dentro da esfera — */
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(cx, cy, R, 0, Math.PI * 2);
+        ctx.clip();
+
+        /* — Linhas de latitude — */
+        ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+        ctx.lineWidth   = 0.6;
+        latitudes.forEach(lat => drawLatitude(lat, angle));
+
+        /* — Linhas de longitude — */
+        longitudes.forEach(lon => drawLongitude(lon, angle));
+
+        /* — Equador ligeiramente mais visível — */
+        ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+        ctx.lineWidth   = 0.8;
+        drawLatitude(0, angle);
+
+        /* — Meridiano base ligeiramente mais visível — */
+        drawLongitude(0, angle);
+
+        ctx.restore(); // remove clip
+
+        /* — Pontos de destaque — */
+        dots.forEach(d => {
+          const p = project(d.lon, d.lat, angle);
+          if (!p.visible) return;
+          // Opacidade varia com profundidade (centro=forte, borda=suave)
+          const alpha = 0.3 + p.depth * 0.7;
+          // Halo externo
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 6, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255,255,255,${alpha * 0.15})`;
+          ctx.fill();
+          // Ponto central
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 2.5, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+          ctx.fill();
+        });
+
+        /* — Avanço da rotação: 1 volta a cada ~18s — */
+        angle += (Math.PI * 2) / (18 * 60);
+        requestAnimationFrame(render);
+      }
+
+      render();
+    })();
+
+    /* ── CURSOR CUSTOMIZADO ─────────────────────────────────── */
+    const cursor     = document.getElementById('cursor');
+    const cursorRing = document.getElementById('cursor-ring');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      cursor.style.left = mx + 'px';
+      cursor.style.top  = my + 'px';
+    });
+
+    // O ring segue com inércia suave
+    function animateRing() {
+      rx += (mx - rx) * 0.12;
+      ry += (my - ry) * 0.12;
+      cursorRing.style.left = rx + 'px';
+      cursorRing.style.top  = ry + 'px';
+      requestAnimationFrame(animateRing);
+    }
+    animateRing();
+
+    // Hover em links e botões
+    document.querySelectorAll('a, button').forEach(el => {
+      el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+      el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+    });
+
+    /* ── BARRA DE PROGRESSO DO SCROLL ─────────────────────── */
+    const progressBar = document.getElementById('scroll-progress');
+    window.addEventListener('scroll', () => {
+      const total = document.documentElement.scrollHeight - window.innerHeight;
+      progressBar.style.width = (window.scrollY / total * 100) + '%';
+    });
+
+    /* ── NAVBAR — efeito ao rolar ──────────────────────────── */
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 60);
+    });
+
+    /* ── MENU MOBILE ─────────────────────────────────────── */
+    const hamburger  = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    hamburger.addEventListener('click', () => {
+      const open = mobileMenu.classList.toggle('open');
+      hamburger.classList.toggle('open', open);
+      document.body.style.overflow = open ? 'hidden' : '';
+    });
+
+    function closeMobileMenu() {
+      mobileMenu.classList.remove('open');
+      hamburger.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    /* ── REVEAL ON SCROLL (Intersection Observer) ────────── */
+    const revealEls = document.querySelectorAll('.reveal');
+    const observer  = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+
+    revealEls.forEach(el => observer.observe(el));
+
+    /* ── CONTADOR ANIMADO (globo) ─────────────────────────── */
+    function animateCounter(target, duration) {
+      const el    = document.getElementById('counter');
+      const start = performance.now();
+
+      function step(now) {
+        const elapsed  = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        // Easing: ease-out cubic
+        const eased    = 1 - Math.pow(1 - progress, 3);
+        el.textContent = Math.round(eased * target);
+        if (progress < 1) requestAnimationFrame(step);
+        else el.textContent = target;
+      }
+      requestAnimationFrame(step);
+    }
+
+    // Inicia o contador quando a seção de impacto entrar na tela
+    const counterSection = document.getElementById('impact');
+    const counterObs     = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        animateCounter(300, 2200);
+        counterObs.unobserve(counterSection);
+      }
+    }, { threshold: 0.3 });
+    counterObs.observe(counterSection);
+
+    /* ── SMOOTH SCROLL para âncoras ──────────────────────── */
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', e => {
+        const target = document.querySelector(anchor.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>
